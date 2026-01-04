@@ -1,11 +1,13 @@
 package com.example.tob.configuration;
 
+import com.example.tob.configuration.profile.CorsProfiles;
 import com.example.tob.configuration.profile.PageableProfiles;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.format.datetime.standard.DateTimeFormatterRegistrar;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
@@ -15,8 +17,11 @@ public class WebConfiguration implements WebMvcConfigurer {
 
     private final PageableProfiles pageableProfiles;
 
-    public WebConfiguration(PageableProfiles pageableProfiles) {
+    private final CorsProfiles corsProfiles;
+
+    public WebConfiguration(PageableProfiles pageableProfiles, CorsProfiles corsProfiles) {
         this.pageableProfiles = pageableProfiles;
+        this.corsProfiles = corsProfiles;
     }
 
     /**
@@ -44,4 +49,19 @@ public class WebConfiguration implements WebMvcConfigurer {
         resolver.setMaxPageSize(pageableProfiles.getMaxPageSize());
         resolvers.add(resolver);
     }
+
+    /**
+     * Config global CORS
+     *
+     * @param registry
+     */
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping(corsProfiles.getPathPattern())
+                .allowedOrigins(corsProfiles.getAllowedOrigins())
+                .allowedMethods(corsProfiles.getAllowedMethods())
+                .allowedHeaders(corsProfiles.getAllowedHeaders())
+                .allowCredentials(corsProfiles.getAllowedCredentials());
+    }
+
 }
