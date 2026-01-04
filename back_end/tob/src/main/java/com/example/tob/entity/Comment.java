@@ -1,10 +1,7 @@
 package com.example.tob.entity;
 
 import com.example.tob.helpers.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
@@ -18,11 +15,12 @@ import lombok.*;
 public class Comment extends BaseEntity {
 
     @Id
-    @Column(name = "comment_id", length = 22)
+    @Column(name = "comment_id", columnDefinition = "BIGINT")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String commentId;
 
-    @Column(name = "system_id", length = 22)
-    private String systemId;
+    @Column(name = "system_id", columnDefinition = "BIGINT")
+    private Long systemId;
 
     @Column(name = "content", length = 5000)
     private String content;

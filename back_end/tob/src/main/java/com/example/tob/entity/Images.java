@@ -2,10 +2,7 @@ package com.example.tob.entity;
 
 import com.example.tob.common.enums.ImageType;
 import com.example.tob.helpers.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
@@ -20,7 +17,8 @@ public class Images extends BaseEntity {
 
     @Id
     @Column(name = "image_id", length = 22)
-    private String imageId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long imageId;
 
     @Column(name = "image_url", length = 2000)
     private String imageUrl;

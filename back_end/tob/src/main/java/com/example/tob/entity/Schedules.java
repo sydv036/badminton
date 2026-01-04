@@ -1,10 +1,7 @@
 package com.example.tob.entity;
 
 import com.example.tob.helpers.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -21,11 +18,12 @@ import java.sql.Time;
 public class Schedules extends BaseEntity {
 
     @Id
-    @Column(name = "schedules_id", length = 22)
-    private String schedulesId;
+    @Column(name = "schedules_id", columnDefinition = "BIGINT")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long schedulesId;
 
-    @Column(name = "venues", length = 22, nullable = false)
-    private String venuesId;
+    @Column(name = "venues", columnDefinition = "BIGINT", nullable = false)
+    private Long venuesId;
 
     @Column(name = "schedules_name", length = 300)
     private String schedulesName;

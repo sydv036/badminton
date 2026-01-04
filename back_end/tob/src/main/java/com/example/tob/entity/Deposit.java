@@ -1,10 +1,7 @@
 package com.example.tob.entity;
 
 import com.example.tob.helpers.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
@@ -19,7 +16,8 @@ public class Deposit extends BaseEntity {
 
     @Id
     @Column(name = "deposit_id")
-    private String depositId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long depositId;
 
     @Column(name = "precent", nullable = false)
     private Integer percent;

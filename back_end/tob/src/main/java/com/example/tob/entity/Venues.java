@@ -1,10 +1,7 @@
 package com.example.tob.entity;
 
 import com.example.tob.helpers.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.sql.Time;
@@ -20,11 +17,12 @@ import java.sql.Time;
 public class Venues extends BaseEntity {
 
     @Id
-    @Column(name = "venues_id", length = 22)
-    private String venuesId;
+    @Column(name = "venues_id", columnDefinition = "BIGINT")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long venuesId;
 
-    @Column(name = "system_id", length = 22, nullable = false)
-    private String systemId;
+    @Column(name = "system_id", columnDefinition = "BIGINT", nullable = false)
+    private Long systemId;
 
     @Column(name = "venues_name", length = 200, nullable = false)
     private String venuesName;
@@ -38,8 +36,8 @@ public class Venues extends BaseEntity {
     @Column(name = "banner_url", length = 2000, nullable = false)
     private String bannerUrl;
 
-    @Column(name = "images", length = 22)
-    private String imageId;
+    @Column(name = "images", columnDefinition = "BIGINT")
+    private Long imageId;
 
     @Column(name = "descriptions", length = 5000)
     private String descriptions;

@@ -2,10 +2,7 @@ package com.example.tob.entity;
 
 import com.example.tob.common.enums.TransactionType;
 import com.example.tob.helpers.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -22,17 +19,18 @@ import java.time.LocalDateTime;
 public class FundTransactionHistory extends BaseEntity {
 
     @Id
-    @Column(name = "found_transaction_history_id", length = 22)
-    private String fundTransactionHistoryId;
+    @Column(name = "found_transaction_history_id", columnDefinition = "BIGINT")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long fundTransactionHistoryId;
 
-    @Column(name = "fund_id", length = 22, nullable = false)
-    private String fundId;
+    @Column(name = "fund_id", columnDefinition = "BIGINT", nullable = false)
+    private Long fundId;
 
-    @Column(name = "group_id", length = 22, nullable = false)
-    private String groupId;
+    @Column(name = "group_id", columnDefinition = "BIGINT", nullable = false)
+    private Long groupId;
 
-    @Column(name = "system_id", length = 22, nullable = false)
-    private String systemId;
+    @Column(name = "system_id", columnDefinition = "BIGINT", nullable = false)
+    private Long systemId;
 
     @Column(name = "amount")
     private BigDecimal amount;
@@ -46,8 +44,8 @@ public class FundTransactionHistory extends BaseEntity {
     @Column(name = "note", length = 3000)
     private String note;
 
-    @Column(name = "approval_by", nullable = false, length = 22)
-    private String approvalBy;
+    @Column(name = "approval_by", nullable = false, columnDefinition = "BIGINT")
+    private Long approvalBy;
 
     @Column(name = "approval_at", nullable = false)
     private LocalDateTime approvalAt;

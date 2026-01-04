@@ -3,10 +3,7 @@ package com.example.tob.entity;
 import com.example.tob.common.enums.ContributionStatus;
 import com.example.tob.common.enums.TransactionType;
 import com.example.tob.helpers.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -23,14 +20,15 @@ import java.time.LocalDateTime;
 public class Contribution extends BaseEntity {
 
     @Id
-    @Column(name = "contribution_id", length = 22)
-    private String contributionId;
+    @Column(name = "contribution_id", columnDefinition = "BIGINT")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long contributionId;
 
-    @Column(name = "group_id", length = 22)
-    private String groupId;
+    @Column(name = "group_id", columnDefinition = "BIGINT")
+    private Long groupId;
 
-    @Column(name = "system_id", length = 22)
-    private String systemId;
+    @Column(name = "system_id", columnDefinition = "BIGINT")
+    private Long systemId;
 
     @Column(name = "amount")
     private BigDecimal amount;
@@ -41,8 +39,8 @@ public class Contribution extends BaseEntity {
     @Column(name = "transaction_type")
     private TransactionType transactionType;
 
-    @Column(name = "approval_by", length = 22)
-    private String approvalBy;
+    @Column(name = "approval_by", columnDefinition = "BIGINT")
+    private Long approvalBy;
 
     @Column(name = "approval_at")
     private LocalDateTime approvalAt;

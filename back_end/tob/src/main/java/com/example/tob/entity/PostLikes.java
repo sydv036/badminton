@@ -18,13 +18,13 @@ import lombok.*;
 public class PostLikes extends BaseSingleEntity {
 
     @Id
-    @Column(name = "post_id", length = 22)
-    private String postId;
+    @Column(name = "post_id", columnDefinition = "BIGINT")
+    private Long postId;
 
-    @Column(name = "system_id", length = 22, nullable = false)
-    private String system_id;
+    @Column(name = "system_id", columnDefinition = "BIGINT", nullable = false)
+    private Long system_id;
 
-    @Column(name = "create_at", length = 22)
-    private String createAt;
+    @Column(name = "create_at", columnDefinition = "BIGINT")
+    private Long createAt;
 
 }

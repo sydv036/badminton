@@ -1,16 +1,13 @@
 package com.example.tob.entity;
 
 import com.example.tob.helpers.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "members")
+@Table(name = "courts")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -20,11 +17,12 @@ import java.math.BigDecimal;
 public class Court extends BaseEntity {
 
     @Id
-    @Column(name = "court_id", length = 22)
-    private String courtId;
+    @Column(name = "court_id", columnDefinition = "BIGINT")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long courtId;
 
-    @Column(name = "venues", length = 22, nullable = false)
-    private String venuesId;
+    @Column(name = "venues", columnDefinition = "BIGINT", nullable = false)
+    private Long venuesId;
 
     @Column(name = "court_name", length = 100)
     private String courtName;

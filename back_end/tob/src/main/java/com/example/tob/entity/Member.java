@@ -19,8 +19,8 @@ import lombok.*;
 public class Member extends BaseEntity {
 
     @Id
-    @Column(name = "system_id", length = 22)
-    private String systemId;
+    @Column(name = "system_id", columnDefinition = "BIGINT")
+    private Long systemId;
 
     @Column(name = "email", nullable = false, unique = true, length = 300)
     private String email;

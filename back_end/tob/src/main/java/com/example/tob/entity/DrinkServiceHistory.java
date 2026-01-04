@@ -2,10 +2,7 @@ package com.example.tob.entity;
 
 import com.example.tob.common.enums.DrinkServiceType;
 import com.example.tob.helpers.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -22,11 +19,12 @@ import java.time.LocalDateTime;
 public class DrinkServiceHistory extends BaseEntity {
 
     @Id
-    @Column(name = "drinks_id", length = 22)
-    private String drinksId;
+    @Column(name = "drinks_id", columnDefinition = "BIGINT")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long drinksId;
 
-    @Column(name = "venues_id", length = 22)
-    private String venuesId;
+    @Column(name = "venues_id", columnDefinition = "BIGINT")
+    private Long venuesId;
 
     @Column(name = "drinks_name", length = 300)
     private String drinksName;
