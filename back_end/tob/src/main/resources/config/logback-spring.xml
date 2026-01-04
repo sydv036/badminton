@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration scan="false" scanPeriod="10 seconds">
+
+    <property name="LOG_PATTERN" value="%d{yyyy/MM/dd HH:mm:ss.SSS} [%t] [%-5p] %c{10} - %m%n"></property>
+    <property name="LOG_FILENAME_PATTERN" value="API.%d{yyyy-MM-dd}.log"></property>
+
+    <appender name="APPLICATION_LOG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/${LOG_FILENAME_PATTERN}</fileNamePattern>
+            <maxHistory>5</maxHistory>
+            <clearHistoryOnStart>true</clearHistoryOnStart>
+            <maxFileSize>30MB</maxFileSize>
+            <totalSizeCap>60MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+<!--    <appender name="REST_LOG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+<!--        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedFileNamingAndTriggeringPolicy">-->
+<!--            <fileNamePattern>${LOG_PATH}/rest.%d{yyyy-MM-dd}.log</fileNamePattern>-->
+<!--            <maxHistory>7</maxHistory>-->
+<!--        </rollingPolicy>-->
+<!--        <encoder>-->
+<!--            <pattern>%d{yyyy/MM/dd HH:mm:ss.SSS} [%m] %X{X-TOB-REQUEST-ID} %X{restReq.id} %X{restReq.method}-->
+<!--                %X{restReq.uri} %X{restReq.statusCode}%n-->
+<!--            </pattern>-->
+<!--        </encoder>-->
+<!--    </appender>-->
+
+    <appender name="APPLICATION_LOG_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+<!--    <appender name="REST_LOG_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">-->
+<!--        <encoder>-->
+<!--            <pattern>%d{yyyy/MM/dd HH:mm:ss.SSS} [%m] %X{X-TOB-REQUEST-ID} %X{restReq.id} %X{restReq.method}-->
+<!--                %X{restReq.uri} %X{restReq.statusCode}%n-->
+<!--            </pattern>-->
+<!--        </encoder>-->
+<!--    </appender>-->
+
+    <springProfile name="dev-local">
+        <root level="INFO">
+            <appender-ref ref="APPLICATION_LOG_CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="!dev-local">
+        <root level="INFO">
+            <appender-ref ref="APPLICATION_LOG_CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="prd">
+        <root level="INFO">
+            <appender-ref ref="APPLICATION_LOG_FILE"/>
+        </root>
+    </springProfile>
+
+</configuration>

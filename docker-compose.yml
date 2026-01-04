@@ -1,0 +1,38 @@
+services:
+  db:
+    image: mysql:${MYSQL_VER:-8.4}
+    container_name: mysql_badminton
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DB_NAME}
+      MYSQL_USER: ${MYSQL_DB_USER}
+      MYSQL_PASSWORD: ${PASSWORD}
+      MYSQL_HOST: localhost
+      MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD}
+    ports:
+      - "${MYSQL_PORT}:3306"
+    volumes:
+      - badminton_db_data:/var/lib/mysql
+    networks:
+      - badminton-network
+
+  redis:
+    image: redis:${REDIS_VER}
+    container_name: redis_badminton
+    ports:
+      - "${REDIS_PORT:-6380}:6379"
+    environment:
+      REDIS_PASSWORD: ${PASSWORD}
+      REDIS_DATABASES: ${REDIS_DB_NAME}
+    volumes:
+      - badminton_redis_data:/data
+    networks:
+      - badminton-network
+
+networks:
+  badminton-network:
+    driver: bridge
+    name: badminton-network
+
+volumes:
+  badminton_db_data:
+  badminton_redis_data:

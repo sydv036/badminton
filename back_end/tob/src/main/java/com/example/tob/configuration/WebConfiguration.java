@@ -1,0 +1,47 @@
+package com.example.tob.configuration;
+
+import com.example.tob.configuration.profile.PageableProfiles;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.format.FormatterRegistry;
+import org.springframework.format.datetime.standard.DateTimeFormatterRegistrar;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.List;
+
+@Configuration
+public class WebConfiguration implements WebMvcConfigurer {
+
+    private final PageableProfiles pageableProfiles;
+
+    public WebConfiguration(PageableProfiles pageableProfiles) {
+        this.pageableProfiles = pageableProfiles;
+    }
+
+    /**
+     * Config global format date time
+     *
+     * @param registry
+     */
+    @Override
+    public void addFormatters(FormatterRegistry registry) {
+        DateTimeFormatterRegistrar dateTimeFormatterRegistrar = new DateTimeFormatterRegistrar();
+        // ISO 8601
+        dateTimeFormatterRegistrar.setUseIsoFormat(true);
+        dateTimeFormatterRegistrar.registerFormatters(registry);
+    }
+
+    /**
+     * Config default pageable
+     *
+     * @param resolvers
+     */
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+        PageableHandlerMethodArgumentResolver resolver = new PageableHandlerMethodArgumentResolver();
+        resolver.setOneIndexedParameters(pageableProfiles.isOneIndexPage());
+        resolver.setMaxPageSize(pageableProfiles.getMaxPageSize());
+        resolvers.add(resolver);
+    }
+}
