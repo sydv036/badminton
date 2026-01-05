@@ -11,7 +11,7 @@ import java.util.UUID;
 @MappedSuperclass
 public abstract class BaseEntity {
 
-    @Column(nullable = false, unique = true, updatable = false)
+    @Column(columnDefinition = "BINARY(16)", nullable = false, unique = true, updatable = false)
     private UUID publicId;
 
     @Column(nullable = false, columnDefinition = "BIGINT")
