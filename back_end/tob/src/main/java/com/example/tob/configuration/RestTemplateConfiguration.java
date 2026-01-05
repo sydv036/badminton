@@ -1,6 +1,6 @@
 package com.example.tob.configuration;
 
-import com.example.tob.configuration.profile.RestTemplateProperties;
+import com.example.tob.configuration.properties.RestTemplateProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

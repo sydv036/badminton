@@ -1,10 +1,9 @@
 package com.example.tob.configuration;
 
-import com.example.tob.configuration.profile.CorsProfiles;
-import com.example.tob.configuration.profile.PageableProfiles;
+import com.example.tob.configuration.properties.CorsProfiles;
+import com.example.tob.configuration.properties.PageableProfiles;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;

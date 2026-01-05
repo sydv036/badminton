@@ -1,6 +1,6 @@
 package com.example.tob.configuration;
 
-import com.example.tob.configuration.profile.WebProperties;
+import com.example.tob.configuration.properties.WebProperties;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

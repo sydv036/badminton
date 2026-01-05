@@ -1,6 +1,6 @@
 package com.example.tob.configuration;
 
-import com.example.tob.configuration.profile.CacheRedisProperties;
+import com.example.tob.configuration.properties.CacheRedisProperties;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

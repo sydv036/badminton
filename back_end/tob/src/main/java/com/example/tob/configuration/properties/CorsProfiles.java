@@ -1,4 +1,4 @@
-package com.example.tob.configuration.profile;
+package com.example.tob.configuration.properties;
 
 import lombok.Getter;
 import lombok.Setter;
