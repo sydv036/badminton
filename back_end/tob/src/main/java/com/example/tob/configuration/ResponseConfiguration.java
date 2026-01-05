@@ -62,6 +62,11 @@ public class ResponseConfiguration implements ResponseBodyAdvice<Object> {
         CommonResponse<Object> commonResponse = new CommonResponse<>();
         ApiMessage apiMessage = returnType.getMethodAnnotation(ApiMessage.class);
 
+        // Handle case already wrapped
+        if (body instanceof CommonResponse<?>) {
+            return body;
+        }
+
         int statusCode = servletResponse.getStatus();
         String mesage;
 

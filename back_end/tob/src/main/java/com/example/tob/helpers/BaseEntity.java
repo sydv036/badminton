@@ -4,24 +4,28 @@ import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @MappedSuperclass
+@Getter
+@Setter
 public abstract class BaseEntity {
 
     @Column(columnDefinition = "BINARY(16)", nullable = false, unique = true, updatable = false)
     private UUID publicId;
 
-    @Column(nullable = false, columnDefinition = "BIGINT")
-    private Long createdBy;
+    @Column(nullable = false, updatable = false)
+    private String createdBy;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(nullable = false, columnDefinition = "BIGINT")
-    private Long updatedBy;
+    @Column(nullable = false)
+    private String updatedBy;
 
     @Column(nullable = false)
     private LocalDateTime updatedAt;
