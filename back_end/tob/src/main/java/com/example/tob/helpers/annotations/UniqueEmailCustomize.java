@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface UniqueEmailCustomize {
 
-    String message() default "Email already exists";
+    String message() default "{common.email.exists}";
 
     Class<?>[] groups() default {};
 
