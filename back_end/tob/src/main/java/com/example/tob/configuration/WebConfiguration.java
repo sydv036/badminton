@@ -10,10 +10,13 @@ import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.format.datetime.standard.DateTimeFormatterRegistrar;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 
 import java.util.List;
+import java.util.Locale;
 
 @Configuration
 public class WebConfiguration implements WebMvcConfigurer {
@@ -73,6 +76,17 @@ public class WebConfiguration implements WebMvcConfigurer {
                 .info(new Info().description("API for TOB Application")
                         .version("1.0")
                         .title("TOB API"));
+    }
+
+    @Bean
+    public LocaleResolver localeResolver() {
+        AcceptHeaderLocaleResolver localeResolver = new AcceptHeaderLocaleResolver();
+        localeResolver.setDefaultLocale(Locale.ENGLISH);
+        localeResolver.setSupportedLocales(List.of(
+                Locale.ENGLISH,
+                new Locale("vi")
+        ));
+        return localeResolver;
     }
 
 }
