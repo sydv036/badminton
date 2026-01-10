@@ -1,7 +1,9 @@
 package com.example.tob.controllers;
 
+import com.example.tob.dtos.requests.LoginRequestDto;
 import com.example.tob.dtos.requests.RegisterRequestDto;
-import com.example.tob.services.auth.interfaces.IRegisterService;
+import com.example.tob.dtos.responses.auth.LoginResponse;
+import com.example.tob.services.auth.interfaces.IAuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,11 +16,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final IRegisterService registerService;
+    private final IAuthService authService;
 
     @PostMapping("/register")
     public String handlerRegister(@RequestBody @Valid RegisterRequestDto registerRequestDto) {
-        return registerService.handlerRegister(registerRequestDto);
+        return authService.handlerRegister(registerRequestDto);
+    }
+
+    @PostMapping("/login")
+    public LoginResponse handlerLogin(@RequestBody @Valid LoginRequestDto loginRequestDto) {
+        return authService.handlerLogin(loginRequestDto);
     }
 
 }

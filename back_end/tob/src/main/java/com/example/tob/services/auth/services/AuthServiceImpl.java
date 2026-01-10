@@ -1,5 +1,7 @@
 package com.example.tob.services.auth.services;
 
+import com.example.tob.common.enums.RoleEnum;
+import com.example.tob.dtos.requests.LoginRequestDto;
 import com.example.tob.dtos.requests.RegisterRequestDto;
 import com.example.tob.dtos.responses.auth.LoginResponse;
 import com.example.tob.dtos.responses.auth.MemberInfoResponse;
@@ -20,12 +22,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Locale;
+import java.util.Set;
 
 @Service
 @Transactional
 @Slf4j
 @RequiredArgsConstructor
-public class RegisterServiceImpl implements IRegisterService {
+public class AuthServiceImpl implements IAuthService {
 
     private final IMemberRepository memberRepository;
 
@@ -41,6 +44,7 @@ public class RegisterServiceImpl implements IRegisterService {
 
     private static final String MESE002 = "MESE002";
     private static final String MESI003 = "MESI003";
+    private static final String MESE003 = "MESE003";
 
     /**
      * Handle register
@@ -74,6 +78,74 @@ public class RegisterServiceImpl implements IRegisterService {
             log.error(messageSource.getMessage(MESE002, args, Locale.getDefault()));
             throw new BusinessException(e);
         }
+    }
+
+    /**
+     * Handle login
+     *
+     * @param loginRequestDto info login
+     * @return MemberInfoResponse contain user info
+     */
+    @Override
+    public LoginResponse handlerLogin(LoginRequestDto loginRequestDto) {
+        try {
+
+            LoginResponse loginResponse = getMemberInfo(loginRequestDto);
+            log.info("loginRes: {}", loginResponse);
+            return loginResponse;
+
+        } catch (RuntimeException e) {
+            String[] args = new String[]{loginRequestDto.getEmail(), e.getMessage()};
+            log.error(messageSource.getMessage(MESE003, args, Locale.getDefault()));
+            throw new BusinessException(e);
+        }
+
+    }
+
+    private LoginResponse getMemberInfo(LoginRequestDto loginRequestDto) {
+
+        MemberInfoResponse account = accountRepository.findByUserName(loginRequestDto.getEmail());
+        Set<String> roles = accountRoleRepository.findBySystemId(account.getSystemId());
+
+        return LoginResponse.builder()
+                .systemId(account.getSystemId())
+                .email(account.getEmail())
+                .phoneNumber(account.getPhoneNumber())
+                .roles(roles)
+                .build();
+    }
+
+    private Account settingAccountInfo(RegisterRequestDto registerRequestDto) {
+        String emailRegister = registerRequestDto.getEmail();
+
+        Account accountRegister = new Account();
+        accountRegister.setUserName(emailRegister);
+        accountRegister.setPassword(passwordEncoder.encode(registerRequestDto.getPassword()));
+        accountRegister.setLocked(false);
+        accountRegister.setActived(true);
+        accountRegister.setCreatedBy(emailRegister);
+        accountRegister.setUpdatedBy(emailRegister);
+
+        return accountRegister;
+    }
+
+    private Member settingMemberInfo(RegisterRequestDto registerRequestDto, Long systemId) {
+        String emailRegister = registerRequestDto.getEmail();
+
+        Member memberMapper = modelMapper.map(registerRequestDto, Member.class);
+        memberMapper.setSystemId(systemId);
+        memberMapper.setUserName(emailRegister);
+        memberMapper.setCreatedBy(emailRegister);
+        memberMapper.setUpdatedBy(emailRegister);
+
+        return memberMapper;
+    }
+
+    private RoleAccount settingRoleAccount(RoleEnum roleEnum, Long systemId) {
+        return RoleAccount.builder()
+                .roleId(roleEnum)
+                .systemId(systemId)
+                .build();
     }
 
 }
