@@ -1,6 +1,7 @@
 package com.example.tob.entity;
 
 import com.example.tob.common.enums.RoleEnum;
+import com.example.tob.helpers.BaseSingleEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,7 +13,7 @@ import lombok.*;
 @Setter
 @Builder
 @ToString
-public class RoleAccount {
+public class RoleAccount extends BaseSingleEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

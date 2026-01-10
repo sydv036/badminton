@@ -25,4 +25,12 @@ public class MRole {
     @Column(name = "role_name", nullable = false, length = 100, updatable = false)
     private String roleName;
 
+    @Column(nullable = false)
+    private boolean systemDeleteFlag;
+
+    @PrePersist
+    public void handlerBeforeInsert() {
+        systemDeleteFlag = false;
+    }
+
 }

@@ -1,12 +1,16 @@
 package com.example.tob.services.auth.services;
 
 import com.example.tob.dtos.requests.RegisterRequestDto;
+import com.example.tob.dtos.responses.auth.LoginResponse;
+import com.example.tob.dtos.responses.auth.MemberInfoResponse;
 import com.example.tob.entity.Account;
 import com.example.tob.entity.Member;
+import com.example.tob.entity.RoleAccount;
 import com.example.tob.exceptions.BusinessException;
 import com.example.tob.repository.IAccountRepository;
+import com.example.tob.repository.IAccountRoleRepository;
 import com.example.tob.repository.IMemberRepository;
-import com.example.tob.services.auth.interfaces.IRegisterService;
+import com.example.tob.services.auth.interfaces.IAuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -27,6 +31,8 @@ public class RegisterServiceImpl implements IRegisterService {
 
     private final IAccountRepository accountRepository;
 
+    private final IAccountRoleRepository accountRoleRepository;
+
     private final ModelMapper modelMapper;
 
     private final PasswordEncoder passwordEncoder;
@@ -46,29 +52,21 @@ public class RegisterServiceImpl implements IRegisterService {
     public String handlerRegister(RegisterRequestDto registerRequestDto) {
         try {
 
-            String emailRegister = registerRequestDto.getEmail();
-
             // Handle processing account
-            Account accountRegister = new Account();
-            accountRegister.setUserName(emailRegister);
-            accountRegister.setPassword(passwordEncoder.encode(registerRequestDto.getPassword()));
-            accountRegister.setLocked(false);
-            accountRegister.setActived(true);
-            accountRegister.setCreatedBy(emailRegister);
-            accountRegister.setUpdatedBy(emailRegister);
-
+            Account accountRegister = settingAccountInfo(registerRequestDto);
             accountRegister = accountRepository.saveAndFlush(accountRegister);
 
+            Long systemId = accountRegister.getSystemId();
+
             // Handle processing member
-            Member memberMapper = modelMapper.map(registerRequestDto, Member.class);
-            memberMapper.setSystemId(accountRegister.getSystemId());
-            memberMapper.setUserName(emailRegister);
-            memberMapper.setCreatedBy(emailRegister);
-            memberMapper.setUpdatedBy(emailRegister);
+            Member memberRegister = settingMemberInfo(registerRequestDto, systemId);
+            memberRepository.save(memberRegister);
 
-            memberRepository.save(memberMapper);
+            // Hander processing add role
+            RoleAccount roleAccount = settingRoleAccount(RoleEnum.ROLE_USER, systemId);
+            accountRoleRepository.save(roleAccount);
 
-            log.info(messageSource.getMessage(MESI003, new String[]{emailRegister}, Locale.getDefault()));
+            log.info(messageSource.getMessage(MESI003, new String[]{registerRequestDto.getEmail()}, Locale.getDefault()));
             return registerRequestDto.getEmail();
 
         } catch (RuntimeException e) {

@@ -48,4 +48,22 @@ public class GlobalExceptions {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    @ExceptionHandler(value = {BusinessException.class})
+    public ResponseEntity<Object> handleBusinessException(BusinessException e) {
+        CommonResponse<Object> response = new CommonResponse<>();
+        response.setStatusCode(HttpStatus.SERVICE_UNAVAILABLE.value());
+        response.setMessage(e.getMessage());
+        response.setErrorCode("ERROR_BUSINESS");
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(response);
+    }
+
+    @ExceptionHandler(value = {SystemException.class})
+    public ResponseEntity<Object> handleSystemException(BusinessException e) {
+        CommonResponse<Object> response = new CommonResponse<>();
+        response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        response.setMessage(e.getMessage());
+        response.setErrorCode("ERROR_SYSTEM");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
 }
