@@ -14,10 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Locale;
 
 
-@SpringBootApplication(exclude = {
-        org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class,
-        org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration.class
-})
+//@SpringBootApplication(exclude = {
+//        org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class,
+//        org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration.class
+//})
+@SpringBootApplication
 @ConfigurationPropertiesScan
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider")
 @RestController
