@@ -19,7 +19,8 @@ public class AuditorAwareImpl implements AuditorAware<String> {
     public Optional<String> getCurrentAuditor() {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (ObjectUtils.isNotEmpty(authentication)) {
+        if (ObjectUtils.isNotEmpty(authentication) && authentication.getAuthorities()
+                .stream().noneMatch(auth -> auth.getAuthority().equals("ROLE_ANONYMOUS"))) {
             return Optional.of(authentication.getName());
         }
         return Optional.of("guest");
