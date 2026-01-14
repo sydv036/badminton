@@ -1,8 +1,8 @@
 package com.example.tob;
 
 import com.example.tob.utils.annotation.ApiMessage;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
@@ -14,21 +14,17 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Locale;
 
 
-//@SpringBootApplication(exclude = {
-//        org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class,
-//        org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration.class
-//})
 @SpringBootApplication
 @ConfigurationPropertiesScan
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider")
 @RestController
 @Slf4j
+@RequiredArgsConstructor
 public class TobApplication {
 
-    @Autowired
-    private MessageSource messageSource;
+    private final MessageSource messageSource;
 
-    private final String MESTT001 = "MESTT001";
+    private static final String MESTT001 = "MESTT001";
 
     public static void main(String[] args) {
         SpringApplication.run(TobApplication.class, args);

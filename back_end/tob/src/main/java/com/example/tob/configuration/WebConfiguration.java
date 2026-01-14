@@ -2,8 +2,6 @@ package com.example.tob.configuration;
 
 import com.example.tob.configuration.properties.CorsProfiles;
 import com.example.tob.configuration.properties.PageableProfiles;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Info;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
@@ -64,18 +62,10 @@ public class WebConfiguration implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping(corsProfiles.getPathPattern())
-                .allowedOrigins(corsProfiles.getAllowedOrigins())
-                .allowedMethods(corsProfiles.getAllowedMethods())
-                .allowedHeaders(corsProfiles.getAllowedHeaders())
+                .allowedOrigins(corsProfiles.getAllowedOrigins().split(","))
+                .allowedMethods(corsProfiles.getAllowedMethods().split(","))
+                .allowedHeaders(corsProfiles.getAllowedHeaders().split(","))
                 .allowCredentials(corsProfiles.getAllowedCredentials());
-    }
-
-    @Bean
-    public OpenAPI openAPI() {
-        return new OpenAPI()
-                .info(new Info().description("API for TOB Application")
-                        .version("1.0")
-                        .title("TOB API"));
     }
 
     @Bean
