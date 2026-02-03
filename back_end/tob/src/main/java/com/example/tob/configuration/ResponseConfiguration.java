@@ -85,14 +85,11 @@ public class ResponseConfiguration implements ResponseBodyAdvice<Object> {
             try {
                 response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
                 String objectConvertString = objectMapper.writeValueAsString(commonResponse);
-                log.info(messageSource.getMessage(MESI002, new Object[]{objectConvertString}, Locale.getDefault()));
                 return objectConvertString;
             } catch (Exception e) {
                 log.warn(messageSource.getMessage(MESW001, new Object[]{e.getMessage()}, Locale.getDefault()));
             }
         }
-
-        log.info(messageSource.getMessage(MESI001, new Object[]{commonResponse}, Locale.getDefault()));
         return commonResponse;
     }
 }

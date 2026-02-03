@@ -1,6 +1,7 @@
 package com.example.tob.services.auth.services;
 
 import com.example.tob.common.enums.RoleEnum;
+import com.example.tob.configuration.properties.AuthProfiles;
 import com.example.tob.dtos.requests.LoginRequestDto;
 import com.example.tob.dtos.requests.RegisterRequestDto;
 import com.example.tob.dtos.responses.auth.LoginResponse;
@@ -9,14 +10,26 @@ import com.example.tob.entity.Account;
 import com.example.tob.entity.Member;
 import com.example.tob.entity.RoleAccount;
 import com.example.tob.exceptions.BusinessException;
+import com.example.tob.mapper.moduleAccount.AccountAuthMapper;
+import com.example.tob.mapper.moduleMember.MemberAuthMapper;
 import com.example.tob.repository.IAccountRepository;
 import com.example.tob.repository.IAccountRoleRepository;
 import com.example.tob.repository.IMemberRepository;
 import com.example.tob.services.auth.interfaces.IAuthService;
+import com.example.tob.services.auth.interfaces.ITokenBlacklistService;
+import com.example.tob.utils.auth.AuthUtils;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.MessageSource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,11 +49,21 @@ public class AuthServiceImpl implements IAuthService {
 
     private final IAccountRoleRepository accountRoleRepository;
 
-    private final ModelMapper modelMapper;
+    private final ITokenBlacklistService tokenBlacklistService;
 
     private final PasswordEncoder passwordEncoder;
 
     private final MessageSource messageSource;
+
+    private final AuthProfiles authProfiles;
+
+    private final MemberAuthMapper memberAuthMapper;
+
+    private final AccountAuthMapper accountAuthMapper;
+
+    private final AuthenticationManager authenticationManager;
+
+    private final AuthUtils authUtils;
 
     private static final String MESE002 = "MESE002";
     private static final String MESI003 = "MESI003";
@@ -87,12 +110,21 @@ public class AuthServiceImpl implements IAuthService {
      * @return MemberInfoResponse contain user info
      */
     @Override
-    public LoginResponse handlerLogin(LoginRequestDto loginRequestDto) {
+    public ResponseEntity<LoginResponse> handlerLogin(LoginRequestDto loginRequestDto) {
         try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequestDto.getEmail(), loginRequestDto.getPassword())
+            );
 
             LoginResponse loginResponse = getMemberInfo(loginRequestDto);
-            log.info("loginRes: {}", loginResponse);
-            return loginResponse;
+            String accessToken = authUtils.createAccessToken(loginResponse);
+            String refreshToken = authUtils.createRefreshToken(loginResponse);
+
+            return ResponseEntity.ok()
+                    .headers(httpHeaders -> {
+                        httpHeaders.add(HttpHeaders.SET_COOKIE, authUtils.cookieSetting(authProfiles.getAccessToken(), accessToken, authProfiles.getCookieMaxAgeAccessToken()));
+                        httpHeaders.add(HttpHeaders.SET_COOKIE, authUtils.cookieSetting(authProfiles.getRefreshToken(), refreshToken, authProfiles.getCookieMaxAgeRefreshToken()));
+                    }).body(loginResponse);
 
         } catch (RuntimeException e) {
             String[] args = new String[]{loginRequestDto.getEmail(), e.getMessage()};
@@ -102,13 +134,58 @@ public class AuthServiceImpl implements IAuthService {
 
     }
 
+    /**
+     * Handler refresh token when access token expire
+     *
+     * @param request
+     * @return
+     */
+    @Override
+    public ResponseEntity<Object> handlerRefreshToken(HttpServletRequest request) {
+        LoginResponse loginResponse = authUtils.getUserWithToken(request, authProfiles.getRefreshToken());
+
+        String accessToken = authUtils.createAccessToken(loginResponse);
+
+        log.info("Check {}",tokenBlacklistService.getAllBlacklistedTokens());
+
+        return ResponseEntity.ok()
+                .headers(httpHeaders ->
+                        httpHeaders.add(HttpHeaders.SET_COOKIE, authUtils.cookieSetting(authProfiles.getAccessToken(), accessToken, authProfiles.getCookieMaxAgeAccessToken()))
+                ).body(loginResponse);
+    }
+
+    /**
+     * Handler logout
+     *
+     * @return
+     */
+    @Override
+    public ResponseEntity<Object> handlerLogout(HttpServletResponse response, HttpServletRequest request) {
+
+        String accessToken = authUtils.getCookieValue(request, authProfiles.getAccessToken());
+        String refreshToken = authUtils.getCookieValue(request, authProfiles.getRefreshToken());
+
+        if (StringUtils.isNotEmpty(accessToken)) {
+            tokenBlacklistService.blackListToken(accessToken);
+        }
+        if (StringUtils.isNotEmpty(refreshToken)) {
+            tokenBlacklistService.blackListToken(refreshToken);
+        }
+
+        authUtils.clearCookieSetting(response);
+        SecurityContextHolder.clearContext();
+        return ResponseEntity.ok("Logout successful");
+    }
+
     private LoginResponse getMemberInfo(LoginRequestDto loginRequestDto) {
 
         MemberInfoResponse account = accountRepository.findByUserName(loginRequestDto.getEmail());
         Set<String> roles = accountRoleRepository.findBySystemId(account.getSystemId());
 
+        if (ObjectUtils.isEmpty(account) || ObjectUtils.isEmpty(roles)) return null;
+
         return LoginResponse.builder()
-                .systemId(account.getSystemId())
+                .publicId(account.getPublicId())
                 .email(account.getEmail())
                 .phoneNumber(account.getPhoneNumber())
                 .roles(roles)
@@ -116,28 +193,21 @@ public class AuthServiceImpl implements IAuthService {
     }
 
     private Account settingAccountInfo(RegisterRequestDto registerRequestDto) {
-        String emailRegister = registerRequestDto.getEmail();
 
-        Account accountRegister = new Account();
-        accountRegister.setUserName(emailRegister);
+        if (ObjectUtils.isEmpty(registerRequestDto)) return null;
+
+        Account accountRegister = accountAuthMapper.toEntity(registerRequestDto);
         accountRegister.setPassword(passwordEncoder.encode(registerRequestDto.getPassword()));
-        accountRegister.setLocked(false);
-        accountRegister.setActived(true);
-        accountRegister.setCreatedBy(emailRegister);
-        accountRegister.setUpdatedBy(emailRegister);
 
         return accountRegister;
     }
 
     private Member settingMemberInfo(RegisterRequestDto registerRequestDto, Long systemId) {
-        String emailRegister = registerRequestDto.getEmail();
 
-        Member memberMapper = modelMapper.map(registerRequestDto, Member.class);
+        if (ObjectUtils.isEmpty(registerRequestDto)) return null;
+
+        Member memberMapper = memberAuthMapper.toEntity(registerRequestDto);
         memberMapper.setSystemId(systemId);
-        memberMapper.setUserName(emailRegister);
-        memberMapper.setCreatedBy(emailRegister);
-        memberMapper.setUpdatedBy(emailRegister);
-
         return memberMapper;
     }
 

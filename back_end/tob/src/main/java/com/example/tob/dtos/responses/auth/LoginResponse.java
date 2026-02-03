@@ -12,7 +12,7 @@ import java.util.Set;
 @Builder
 public class LoginResponse {
 
-    private Long systemId;
+    private String publicId;
 
     private String email;
 

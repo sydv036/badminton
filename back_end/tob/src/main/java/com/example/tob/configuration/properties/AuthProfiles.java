@@ -19,4 +19,18 @@ public class AuthProfiles {
 
     private String claimAuthority;
 
+    private String accessToken;
+
+    private String refreshToken;
+
+    private boolean cookieHttpOnly;
+
+    private boolean cookieSecure;
+
+    private String cookiePath;
+
+    private Integer cookieMaxAgeAccessToken;
+
+    private Integer cookieMaxAgeRefreshToken;
+
 }

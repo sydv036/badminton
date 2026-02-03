@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -33,7 +34,7 @@ public class GlobalExceptions {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
-    @ExceptionHandler(value = {MethodArgumentNotValidException.class})
+    @ExceptionHandler(value = {MethodArgumentNotValidException.class, BadCredentialsException.class})
     public ResponseEntity<Object> handleMethodArgNotValid(MethodArgumentNotValidException e) {
         CommonResponse<Object> response = new CommonResponse<>();
         response.setStatusCode(HttpStatus.BAD_REQUEST.value());
@@ -64,6 +65,15 @@ public class GlobalExceptions {
         response.setMessage(e.getMessage());
         response.setErrorCode("ERROR_SYSTEM");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
+    @ExceptionHandler(value = {AuthenticationException.class})
+    public ResponseEntity<Object> handleAuthenticationException(AuthenticationException e) {
+        CommonResponse<Object> response = new CommonResponse<>();
+        response.setStatusCode(HttpStatus.UNAUTHORIZED.value());
+        response.setMessage(e.getMessage());
+        response.setErrorCode("ERROR_AUTHENTICATION");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
 }

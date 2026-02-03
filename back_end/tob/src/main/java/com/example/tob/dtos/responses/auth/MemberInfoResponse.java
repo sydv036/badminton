@@ -2,10 +2,18 @@ package com.example.tob.dtos.responses.auth;
 
 public interface MemberInfoResponse {
 
-     Long getSystemId();
+    Long getSystemId();
 
-     String getEmail();
+    String getPublicId();
 
-     String getPhoneNumber();
+    String getEmail();
+
+    String getPhoneNumber();
+
+    String getPassword();
+
+    Boolean getLocked();
+
+    Boolean getActived();
 
 }

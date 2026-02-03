@@ -13,8 +13,12 @@ public interface IAccountRepository extends JpaRepository<Account, Long> {
     @Query(value = """
                 SELECT 
                     ac.systemId as systemId,
+                    ac.publicId as publicId,
                     ac.userName as email,
-                    me.phoneNumber as phoneNumber
+                    me.phoneNumber as phoneNumber,
+                    ac.password as password,
+                    ac.locked as locked,
+                    ac.actived as actived
                 FROM Account ac 
                 JOIN Member me on ac.systemId = me.systemId
                 and me.systemDeleteFlag = false 

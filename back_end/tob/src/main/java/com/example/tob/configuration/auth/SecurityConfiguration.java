@@ -1,36 +1,33 @@
 package com.example.tob.configuration.auth;
 
+import com.example.tob.configuration.interceptor.Interceptor;
 import com.example.tob.configuration.properties.AuthProfiles;
+import com.example.tob.services.auth.interfaces.ITokenBlacklistService;
+import com.example.tob.services.auth.services.UserDetailServiceCustomize;
+import com.example.tob.utils.auth.AuthUtils;
 import com.example.tob.utils.auth.CustomizeAuthenticationEntrypoint;
-import com.nimbusds.jose.jwk.source.ImmutableSecret;
-import com.nimbusds.jose.util.Base64;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableMethodSecurity(securedEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
-    private final AuthProfiles authProfiles;
+    private final Interceptor interceptor;
 
-    private static final MacAlgorithm JWT_ALGORITHM = MacAlgorithm.HS256;
+    private final UserDetailServiceCustomize userDetailServiceCustomize;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, CustomizeAuthenticationEntrypoint customizeAuthenticationEntrypoint) throws Exception {
@@ -38,7 +35,10 @@ public class SecurityConfiguration {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(
-                                "/**").permitAll()
+                                "/auth/**",
+                                "/swagger-ui/**",
+                                "/api-docs/**"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form.disable())
@@ -46,41 +46,21 @@ public class SecurityConfiguration {
                         .jwt(Customizer.withDefaults())
                         .authenticationEntryPoint(customizeAuthenticationEntrypoint))
 
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(interceptor, UsernamePasswordAuthenticationFilter.class);
 
         return httpSecurity.build();
     }
 
-    public SecretKey getSecretKey() {
-        byte[] keyBytes = Base64.from(authProfiles.getBase64Secret()).decode();
-        return new SecretKeySpec(keyBytes, 0, keyBytes.length, JWT_ALGORITHM.getName());
-    }
-
     @Bean
-    public JwtEncoder jwtEncoder() {
-        return new NimbusJwtEncoder(new ImmutableSecret<>(getSecretKey()));
-    }
+    public AuthenticationManager authenticationManager(PasswordEncoder passwordEncoder) throws Exception {
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder);
+        daoAuthenticationProvider.setUserDetailsService(userDetailServiceCustomize);
+        daoAuthenticationProvider.setHideUserNotFoundExceptions(true);
 
-    @Bean
-    public JwtDecoder jwtDecoder() {
-        NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(getSecretKey()).macAlgorithm(JWT_ALGORITHM).build();
-        return token -> {
-            try {
-                return jwtDecoder.decode(token);
-            } catch (Exception e) {
-                throw e;
-            }
-        };
-    }
-
-    @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
-        jwtGrantedAuthoritiesConverter.setAuthoritiesClaimName(authProfiles.getClaimAuthority());
-        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
-        return jwtAuthenticationConverter;
+        ProviderManager providerManager = new ProviderManager(daoAuthenticationProvider);
+        return providerManager;
     }
 
 }

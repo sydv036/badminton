@@ -12,4 +12,6 @@ public class CacheRedisProperties {
     private long ttlMinutes;
 
     private String keyPrefixName;
+
+    private long ttlMillisSecond;
 }
